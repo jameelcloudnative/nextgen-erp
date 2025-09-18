@@ -6,11 +6,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -44,5 +46,31 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * The companies that belong to the user.
+     */
+    public function companies(): BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'user_companies')
+                    ->withPivot(['role_id', 'is_default'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the user's default company.
+     */
+    public function defaultCompany()
+    {
+        return $this->companies()->wherePivot('is_default', true)->first();
+    }
+
+    /**
+     * Check if user has access to a specific company.
+     */
+    public function hasAccessToCompany(int $companyId): bool
+    {
+        return $this->companies()->where('company_id', $companyId)->exists();
     }
 }
