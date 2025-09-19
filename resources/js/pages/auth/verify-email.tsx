@@ -1,14 +1,15 @@
 // Components
-import EmailVerificationNotificationController from '@/actions/App/Http/Controllers/Auth/EmailVerificationNotificationController';
-import { logout } from '@/routes';
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, router } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 
-import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/auth-layout';
 
 export default function VerifyEmail({ status }: { status?: string }) {
+    const handleLogout = () => {
+        router.post('/logout');
+    };
+
     return (
         <AuthLayout title="Verify email" description="Please verify your email address by clicking on the link we just emailed to you.">
             <Head title="Email verification" />
@@ -19,7 +20,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                 </div>
             )}
 
-            <Form {...EmailVerificationNotificationController.store.form()} className="space-y-6 text-center">
+            <Form>
                 {({ processing }) => (
                     <>
                         <Button disabled={processing} variant="secondary">
@@ -27,9 +28,13 @@ export default function VerifyEmail({ status }: { status?: string }) {
                             Resend verification email
                         </Button>
 
-                        <TextLink href={logout()} className="mx-auto block text-sm">
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="mx-auto block text-sm text-blue-600 hover:text-blue-500 underline underline-offset-4"
+                        >
                             Log out
-                        </TextLink>
+                        </button>
                     </>
                 )}
             </Form>
